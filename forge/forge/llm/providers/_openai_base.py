@@ -46,6 +46,7 @@ from .schema import (
     _ModelProviderSettings,
 )
 from .utils import validate_tool_calls
+from ...logging.utils import print_attribute
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
@@ -341,7 +342,7 @@ class BaseOpenAIChatProvider(
             int: Number of completion tokens used
         """
         completion_kwargs["model"] = completion_kwargs.get("model") or model
-
+        print_attribute("请求大模型提示", completion_kwargs)
         @self._retry_api_request
         async def _create_chat_completion_with_retry() -> ChatCompletion:
             return await self._client.chat.completions.create(
@@ -349,6 +350,7 @@ class BaseOpenAIChatProvider(
             )
 
         completion = await _create_chat_completion_with_retry()
+        print_attribute("请求大模型返回", completion)
 
         if completion.usage:
             prompt_tokens_used = completion.usage.prompt_tokens
